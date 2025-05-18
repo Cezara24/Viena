@@ -1,0 +1,210 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Viena</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="Free HTML Templates" name="keywords" />
+    <meta content="Free HTML Templates" name="description" />
+
+    <!-- Favicon -->
+    <link href="../img/favicon.ico" rel="icon" />
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="../css/style.css" rel="stylesheet" />
+
+    <style>
+      .highlight {
+        background-color: yellow;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="min-vh-100 d-flex flex-column justify-content-between">
+      <div class="">
+        <!-- Navbar -->
+        <div id="navbar"></div>
+        <!-- Content -->
+        <div class="container-fluid py-5">
+          <div class="container py-5">
+            <div class="col-2xl-5">
+              <div class="w-100">
+                <!-- Searchbar -->
+                <form class="input-group mb-5 mt-5">
+                  <input
+                    type="text"
+                    name="t"
+                    class="form-control border-light"
+                    style="padding: 30px 25px"
+                    placeholder="Ex: Mozart, Prater, etc."
+                    required
+                  />
+                  <div class="input-group-append">
+                    <button
+                      type="submit"
+                      class="btn btn-secondary px-4 px-lg-5"
+                    >
+                      Caută
+                    </button>
+                  </div>
+                </form>
+
+                <!-- Search results -->
+                <div
+                  id="search-results"
+                  class="d-flex flex-column"
+                  style="gap: 1rem"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div id="footer"></div>
+    </div>
+
+    <!-- preia valoarea din link si cauta in data.json-->
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const searchTerm = params.get("t").trim();
+      const input = document.querySelector('input[name="t"]');
+      if (searchTerm) {
+        input.value = searchTerm;
+        searchInData(searchTerm.toLowerCase());
+      }
+
+      async function searchInData(term) {
+        const res = await fetch("../data.json");
+        const data = await res.json();
+        const resultsContainer = document.getElementById("search-results");
+        resultsContainer.innerHTML = "";
+
+        let found = false;
+
+        for (const key in data) {
+          const item = data[key];
+          const title = item.title?.toLowerCase() || "";
+          const paragraphs = item.paragraphs || "";
+
+          let fragment = "";
+          const textLength = 100;
+
+          paragraphs.forEach((paragraph, paragraphIndex) => {
+            if (paragraph.toLowerCase().includes(term) && !fragment) {
+              const lowerParagraph = paragraph.toLowerCase();
+              const index = lowerParagraph.indexOf(term);
+
+              const start = Math.max(0, index - textLength);
+              const end = Math.min(
+                paragraph.length,
+                index + term.length + textLength
+              );
+              fragment =
+                (paragraphIndex === 0 && start === 0 ? "" : "...") +
+                paragraph.substring(start, end) +
+                (paragraphIndex === paragraphs.length - 1 &&
+                end === paragraphs.length - 1
+                  ? ""
+                  : "...");
+            }
+          });
+
+          if (title.includes(term) || fragment) {
+            found = true;
+
+            if (!fragment) {
+              fragment =
+                paragraphs[0].substring(0, textLength) +
+                (paragraphs[0].length <= 100 ? "" : "...");
+            }
+
+            function highlightTerm(text, term) {
+              const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+              const regex = new RegExp(escapedTerm, "gi");
+              return text.replace(
+                regex,
+                (match) => `<span class="highlight">${match}</span>`
+              );
+            }
+
+            fragment = highlightTerm(fragment, term);
+            const highlightedTitle = highlightTerm(item.title, term);
+
+            const resultHTML = `
+              <div class="w-full px-5 py-3 bg-light d-flex flex-row align-items-center" style="border-radius: 5px; gap:1rem; cursor: pointer;">
+                <div style="height: 4rem; width: 6rem; min-width: 6rem;" class="d-flex flex-row justify-content-center">
+                 ${
+                   item.image
+                     ? `<img src="../${item.image}" alt="${item.title}" class="img-fluid h-100" >`
+                     : ""
+                 }
+                </div>
+                <div>
+                  <p class="font-weight-bold text-dark" style="height: fit-content; margin: 0;" >${highlightedTitle}</h4>
+                  <p style="margin: 0;">${fragment}</p>
+                </div>
+              </div>
+            `;
+
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = resultHTML;
+            const resultElement = tempDiv.firstElementChild;
+
+            resultElement.addEventListener("click", () => {
+              window.location.href =
+                key === "home" ? "/index.html" : `/pages/${key}.html`;
+            });
+
+            resultsContainer.appendChild(resultElement);
+          }
+        }
+
+        if (!found) {
+          resultsContainer.innerHTML = "<p>Nu s-au găsit rezultate.</p>";
+        }
+      }
+    </script>
+
+    <!-- insereaza bara de navigare si footerul -->
+    <script>
+      async function includeHTML(id, file) {
+        const res = await fetch(file);
+        const html = await res.text();
+        document.getElementById(id).innerHTML = html;
+      }
+      includeHTML("navbar", "../components/navbar.html").then(() => {
+        const script = document.createElement("script");
+        script.src = "../components/navbar.js";
+        script.onload = () => {
+          handleAuthDisplay();
+        };
+        document.body.appendChild(script);
+      });
+      includeHTML("footer", "../components/footer.html");
+    </script>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="../lib/easing/easing.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="../main.js"></script>
+  </body>
+</html>

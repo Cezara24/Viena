@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Viena</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="Free HTML Templates" name="keywords" />
+    <meta content="Free HTML Templates" name="description" />
+
+    <!-- Favicon -->
+    <link href="../img/favicon.ico" rel="icon" />
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="../css/style.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div
+      class="min-vh-100 w-100 d-flex flex-row justify-content-center align-items-center p-3"
+    >
+      <div class="d-flex flex-column" style="width: 25rem; gap: 4rem">
+        <a href="../index.html" class="navbar-brand ml-lg-3">
+          <h1 class="m-0 text-uppercase text-primary text-center w-full">
+            ViennaVibes
+          </h1>
+        </a>
+
+        <form class="w-100">
+          <div class="">
+            <div class="">
+              <div class="form-group">
+                <input
+                  required
+                  type="email"
+                  id="email"
+                  class="form-control bg-light border-0"
+                  placeholder="Email"
+                  style="padding: 30px 20px"
+                />
+              </div>
+            </div>
+            <div class="">
+              <div class="form-group">
+                <input
+                  required
+                  type="password"
+                  id="password"
+                  class="form-control bg-light border-0"
+                  placeholder="Parolă"
+                  style="padding: 30px 20px"
+                />
+              </div>
+            </div>
+            <p
+              id="error-msg"
+              class="text-center"
+              style="color: darkred; display: none"
+            >
+              Nume sau parolă incorecte.
+            </p>
+            <div class="">
+              <button
+                class="btn btn-primary btn-block"
+                type="submit"
+                style="height: 60px"
+              >
+                Login
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // Selectăm formularul și inputurile corecte
+      const form = document.querySelector("form");
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+      const errorMsg = document.getElementById("error-msg");
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        const validEmail = "iarina.chesca@gmail.com";
+        const validPassword = "parola";
+
+        if (email === validEmail && password === validPassword) {
+          localStorage.setItem("isLoggedIn", "true");
+          localStorage.setItem("username", "Iarina");
+          window.location.href = "../index.html";
+        } else {
+          errorMsg.style.display = "block"; // Afișează mesajul de eroare
+        }
+      });
+
+      // Ascundem mesajul de eroare dacă utilizatorul începe să scrie din nou
+      [emailInput, passwordInput].forEach((input) =>
+        input.addEventListener("input", () => {
+          errorMsg.style.display = "none";
+        })
+      );
+    </script>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="../main.js"></script>
+  </body>
+</html>
